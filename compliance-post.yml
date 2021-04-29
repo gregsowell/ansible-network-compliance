@@ -1,0 +1,31 @@
+---
+- name: compliance post run.  This will create a SNOW incidence based on anything found non-compliant
+  hosts: localhost
+  gather_facts: false
+  become: yes
+  check_mode: no
+  vars:
+    snow_user: gsowell
+    comp_file_loc: /usr/games/compliance-file.txt
+
+  tasks:
+  - name: load comp file into variable
+    set_fact:
+      comp_contents: "{{ lookup('file', comp_file_loc) }}"
+
+  - name: when compliance file is not empty then create incident with contents
+    ignore_errors: true
+    when: "comp_contents != ''"
+    servicenow.itsm.incident:
+      instance:
+        host: "https://{{ snow_instance }}.service-now.com"
+        username: "{{ snow_username }}"
+        password: "{{ snow_password }}"
+      state: new
+      caller: "{{ snow_user }}"
+      short_description: Network Gear Noncompliance
+      description: Equipment found to be noncompliant
+      impact: low
+      urgency: low
+      other: 
+        comments: "{{ comp_contents }}"
