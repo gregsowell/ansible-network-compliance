@@ -1,0 +1,9 @@
+---
+- name: send alert on compliance incident send failure
+  hosts: localhost
+  gather_facts: false
+  vars:
+  tasks:
+  - name: send notice
+    debug:
+      msg: send notice on failure
