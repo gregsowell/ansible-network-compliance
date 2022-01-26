@@ -1,7 +1,7 @@
 ---
 - name: gather currently configured NTP servers
   become: true
-  eos_command:
+  arista.eos.eos_command:
     commands:
       - show run | inc ntp
   register: show_command
