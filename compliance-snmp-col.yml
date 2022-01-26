@@ -1,0 +1,17 @@
+---
+- name: Configure snmp community settings on network kit
+  hosts: all
+  gather_facts: false
+  vars:
+#    location: us
+    snmp_list_command: []
+    comp_file_loc: /usr/games/compliance-file.txt
+
+  tasks:
+  - name: if it's cisco IOS call the cisco snmp task file
+    when: "hostvars[inventory_hostname]['ansible_network_os'] == 'ios'"
+    ansible.builtin.include_tasks: compliance-snmp-cisco-ios-col.yml
+
+  - name: if it's arista EOS call the arista snmp task file
+    when: "hostvars[inventory_hostname]['ansible_network_os'] == 'eos'"
+    ansible.builtin.include_tasks: compliance-snmp-arista-eos-col.yml
