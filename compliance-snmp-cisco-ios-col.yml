@@ -1,0 +1,94 @@
+---
+- name: gather currently configured snmp coms
+  cisco.ios.ios_command:
+    commands:
+      - show run | inc snmp-server community
+  register: show_command
+
+#  - name: debug show_command
+#    debug:
+##      var: show_command
+#      msg: "{{ item }}"
+#    loop: "{{ show_command.stdout_lines[0] }}"
+
+
+- name: include snmp server vars
+  ansible.builtin.include_vars:
+    file: "compliance-snmp-{{ hostvars[inventory_hostname]['location'] }}.yml"
+
+#  - name: debug coms from file
+#    debug:
+##      var: coms
+#      msg: "{{ item }}"
+#    loop: "{{ coms }}"
+
+- name: set command structure based on server list
+  ansible.builtin.set_fact:
+    snmp_list_command: "{{ snmp_list_command }} + [ 'snmp-server community {{ item }} RO' ]"
+  loop: "{{ coms }}"
+  run_once: true
+
+#  - name: debug coms command structure
+#    debug:
+##      var: snmp_list_command
+#      msg: "{{ item }}"
+#    loop: "{{ snmp_list_command }}"
+
+- name: create list of coms that need to be removed
+  ansible.builtin.set_fact:
+    remove_coms: "{{ show_command.stdout_lines[0] | difference(snmp_list_command) | list }}"
+
+#  - name: debug remove_coms variable
+#    debug:
+#      var: remove_coms
+
+- name: put ios_command here to remove coms
+  when: "remove_coms[0] != ''"
+  cisco.ios.ios_config:
+    lines: 
+      - "no {{ item }}"
+  loop: "{{ remove_coms }}"
+  register: remove_result
+
+#  - name: debug remove_result variable
+#    debug:
+#      var: remove_result
+
+- name: do standard ios_snmp to add the coms here
+  cisco.ios.ios_config:
+    lines: 
+      - "{{ item }}"
+  loop: "{{ snmp_list_command }}"
+  register: add_result
+
+#  - name: debug add_result variable
+#    debug:
+#      var: add_result
+
+- name: run this block when in check mode
+  when: 
+    - ansible_check_mode
+    - compliance_check is defined
+  check_mode: no
+  become: yes
+  block:
+    - name: build list from remove checks
+      delegate_to: localhost
+      when: remove_result.changed == true
+      ansible.builtin.shell:
+        cmd: "echo '{{ inventory_hostname }} remove existing snmp coms' >> {{ comp_file_loc }}"
+
+    - name: build list from add checks
+      delegate_to: localhost
+      when: add_result.changed == true
+      ansible.builtin.shell:
+        cmd: "echo '{{ inventory_hostname }} add new snmp coms' >> {{ comp_file_loc }}"
+
+#    - name: debug noncompliance file
+#      run_once: true
+#      debug:
+#        msg: "{{ lookup('file', '{{ comp_file_loc }}') }}"
+
+#      - name: debug noncompliance_list variable
+#        debug:
+#          var: noncompliance_list
