@@ -1,0 +1,18 @@
+---
+- name: Configure NTP server settings on network kit
+  hosts: all
+  gather_facts: false
+  vars:
+#    location: us
+    ntp_list_command: []
+    noncompliance_list: []
+    comp_file_loc: /usr/games/compliance-file.txt
+
+  tasks:
+  - name: if it's cisco IOS call the cisco ntp task file
+    when: "hostvars[inventory_hostname]['ansible_network_os'] == 'ios'"
+    ansible.builtin.include_tasks: compliance-ntp-cisco-ios-col.yml
+
+  - name: if it's arista EOS call the arista ntp task file
+    when: "hostvars[inventory_hostname]['ansible_network_os'] == 'eos'"
+    ansible.builtin.include_tasks: compliance-ntp-arista-eos-col.yml
