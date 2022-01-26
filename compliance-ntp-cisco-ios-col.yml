@@ -13,7 +13,7 @@
 
 
 - name: include ntp server vars
-  ansible_builtin.include_vars:
+  ansible.builtin.include_vars:
     file: "compliance-ntp-servers-{{ hostvars[inventory_hostname]['location'] }}.yml"
 
 #  - name: debug servers from file
