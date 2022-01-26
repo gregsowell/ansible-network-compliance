@@ -1,0 +1,38 @@
+---
+- name: reset compliance switches to scratch spot
+  hosts: all
+  gather_facts: false
+  vars:
+    sw1:
+      - ntp server 1.1.1.1
+      - ntp server 2.2.2.2
+      - snmp-server community CommunityString1 RO
+      - snmp-server community CommunityString2 RO
+
+    sw2 :
+#      - ntp server 3.3.3.3
+#      - ntp server 1.1.1.1
+#      - snmp-server community OldRemove RO
+
+    sw3:
+      - ntp server 1.1.1.1
+      - ntp server 3.3.3.3
+      - snmp-server community CommunityString1 RO
+      - snmp-server community CommunityString2 RO
+
+    arista_sw1:
+      - ntp server 1.1.1.1
+      - ntp server 2.2.2.2
+      - snmp-server community OldRemove RO
+
+  tasks:
+  - name: configure cisco kit
+    when: "hostvars[inventory_hostname]['ansible_network_os'] == 'ios'"
+    cisco.ios.ios_config:
+      lines: "{{ lookup('vars', inventory_hostname) }}"
+
+  - name: configure arista kit
+    become: true
+    when: "hostvars[inventory_hostname]['ansible_network_os'] == 'eos'"
+    arista.eos.eos_config:
+      lines: "{{ arista_sw1 }}"
