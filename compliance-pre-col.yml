@@ -1,0 +1,19 @@
+---
+- name: pre work for compliance checking
+  hosts: controller
+  gather_facts: false
+  check_mode: no
+  become: yes
+  vars:
+    comp_file_loc: /usr/games/compliance-file.txt
+
+  tasks:
+  - name: remove compliance file
+    ansible.builtin.file: 
+      path: "{{ comp_file_loc }}"
+      state: absent
+
+  - name: create compliance file
+    ansible.builtin.file: 
+      path: "{{ comp_file_loc }}"
+      state: touch
