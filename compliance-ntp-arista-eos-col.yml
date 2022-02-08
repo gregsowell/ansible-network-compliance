@@ -75,13 +75,13 @@
   become: yes
   block:
     - name: build list from remove checks
-      delegate_to: localhost
+      delegate_to: controller
       when: remove_result.changed == true
       ansible.builtin.shell:
         cmd: "echo '{{ inventory_hostname }} remove existing NTP servers' >> {{ comp_file_loc }}"
 
     - name: build list from add checks
-      delegate_to: localhost
+      delegate_to: controller
       when: add_result.changed == true
       ansible.builtin.shell:
         cmd: "echo '{{ inventory_hostname }} add new NTP servers' >> {{ comp_file_loc }}"
