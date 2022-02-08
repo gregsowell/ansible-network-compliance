@@ -2,7 +2,7 @@
 - name: compliance post run.  This will create a SNOW incidence based on anything found non-compliant
   hosts: controller
   gather_facts: false
-  become: yes
+  # become: yes
   check_mode: no
   vars:
     snow_user: gsowell
