@@ -1,6 +1,6 @@
 ---
 - name: compliance post run.  This will create a SNOW incidence based on anything found non-compliant
-  hosts: localhost
+  hosts: controller
   gather_facts: false
   become: yes
   check_mode: no
