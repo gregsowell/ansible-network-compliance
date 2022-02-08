@@ -32,4 +32,5 @@
       impact: low
       urgency: low
       other: 
-        comments: "{{ comp_contents }}"
+        # comments: "{{ comp_contents }}"
+        comments: "{{ comp_contents.stdout }}"
