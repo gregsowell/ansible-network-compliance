@@ -11,8 +11,8 @@
   tasks:
   - name: load comp file into variable
     ansible.builtin.set_fact:
-      comp_contents: "{{ lookup('ansible.builtin.file', comp_file_loc) }}"
-      # comp_contents: "{{ lookup('ansible.builtin.file', '/usr/games/compliance-file.txt') }}"
+      # comp_contents: "{{ lookup('ansible.builtin.file', comp_file_loc) }}"
+      comp_contents: "{{ lookup('ansible.builtin.file', '/usr/games/compliance-file.txt') }}"
 
   - name: when compliance file is not empty then create incident with contents
     ignore_errors: true
